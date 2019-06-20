@@ -6,7 +6,7 @@
 #define X A0
 #define Y A1
 
-#define Kp 0.1
+#define Kp 0.5
 #define SPEED 0.7
 
 void setup() {
@@ -25,27 +25,27 @@ void get_value(int *x, int *y) {
 void pid(int x, int y, int *l, int *r) {
   int turn = (x * Kp);
   int v = y * SPEED;
-  *l = v + turn;
-  *r = v - turn;
+  *l = v - turn;
+  *r = v + turn;
 }
 
 void motor(int l, int r, byte m[4]) {
   if (l > 0) {
-    m[0] = l;
+    m[0] = min(l, 255);
     m[1] = 0;
   } else if (l < 0) {
     m[0] = 0;
-    m[1] = l * -1;
+    m[1] = min(l * -1, 255);
   } else {
     m[0] = 0;
     m[1] = 0;
   }
   if (r > 0) {
-    m[2] = r;
+    m[2] = min(r, 255);
     m[3] = 0;
   } else if (r < 0) {
     m[2] = 0;
-    m[3] = r * -1;
+    m[3] = min(r * -1, 255);
   } else {
     m[2] = 0;
     m[3] = 0;
