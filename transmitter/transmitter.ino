@@ -8,6 +8,12 @@
 
 #define Kp 0.5
 #define SPEED 0.7
+#define V 150
+
+#define THR 200
+// 臨界值
+
+int lastL, lastR;
 
 void setup() {
   // put your setup code here, to run once:
@@ -22,33 +28,60 @@ void get_value(int *x, int *y) {
   *y = (analogRead(Y) - 512) / 2;
 }
 
-void pid(int x, int y, int *l, int *r) {
-  int turn = (x * Kp);
-  int v = y * SPEED;
-  *l = v - turn;
-  *r = v + turn;
-}
-
-void motor(int l, int r, byte m[4]) {
+void motor(int r, int l, byte m[4]) {
   if (l > 0) {
-    m[0] = min(l, 255);
+    m[0] = V;
     m[1] = 0;
   } else if (l < 0) {
     m[0] = 0;
-    m[1] = min(l * -1, 255);
+    m[1] = V;
   } else {
     m[0] = 0;
     m[1] = 0;
   }
   if (r > 0) {
-    m[2] = min(r, 255);
+    m[2] = V;
     m[3] = 0;
   } else if (r < 0) {
     m[2] = 0;
-    m[3] = min(r * -1, 255);
+    m[3] = V;
   } else {
     m[2] = 0;
     m[3] = 0;
+  }
+}
+
+void easy(int x, int y, int *l, int *r) {
+  Serial.print(x);
+  Serial.print(", ");
+  Serial.print(y);
+  Serial.print(" | ");
+  if (y > THR) {
+    // 前
+    *l = 1;
+    *r = 1;
+    if (x < -THR) {
+      *l = 0;
+    } else if (x > THR) {
+      *r = 0;
+    }
+  } else if (y < -THR) {
+    *l = -1;
+    *r = -1;
+    if (x < -THR) {
+      *l = 0;
+    } else if (x > THR) {
+      *r = 0;
+    }
+  } else {
+    if (x < -THR) {
+      *l = -1;
+    } else if (x > THR) {
+      *l = 1;
+    } else {
+      *l = 0;
+    }
+    *r = -1 * (*l);
   }
 }
 
@@ -57,7 +90,7 @@ void loop() {
   int x, y;
   get_value(&x, &y);
   int l, r;
-  pid(x, y, &l, &r);
+  easy(x, y, &l, &r);
   byte m[4] = {0, 0, 0, 0};
   motor(l, r, m);
   Serial.print(l);
@@ -70,4 +103,7 @@ void loop() {
   }
   Serial.println("");
   vw_send((uint8_t *)m, 4);
+  delay(20);
+  lastL = l;
+  lastR = r;
 }

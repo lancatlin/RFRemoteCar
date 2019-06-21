@@ -1,11 +1,13 @@
 // reciever
 #include <VirtualWire.h>
-#define RX 52
+#define RX 48
 
 #define L1 5
 #define L2 6
 #define R1 4
 #define R2 3
+
+#define LED 40
 
 void setup() {
   // put your setup code here, to run once:
@@ -16,6 +18,11 @@ void setup() {
 }
 
 void set_motor() {
+  
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
   byte message[4];
   byte messageLength = 4;
   if (vw_get_message(message, &messageLength)) {
@@ -25,12 +32,8 @@ void set_motor() {
       analogWrite(R1, message[2]);
       analogWrite(R2, message[3]);
     }
-  }
-}
-
-void loop() {
-  // put your main code here, to run repeatedly:
-  if (vw_have_message()) {
-    set_motor();
+    digitalWrite(LED, HIGH);
+  } else {
+    digitalWrite(LED, LOW);
   }
 }
