@@ -7,11 +7,15 @@
 #define R1 4
 #define R2 3
 
-#define LED 40
+#define LED 46
+
+unsigned long time;
+bool led;
 
 void setup() {
   // put your setup code here, to run once:
-  Serial.begin(9600);
+  //Serial.begin(9600);
+  pinMode(LED, OUTPUT);
   vw_setup(2000);
   vw_set_rx_pin(RX);
   vw_rx_start();
@@ -33,7 +37,14 @@ void loop() {
       analogWrite(R2, message[3]);
     }
     digitalWrite(LED, HIGH);
-  } else {
+    led = true;
+    time = millis();
+    //Serial.print("HIGH: ");
+    //Serial.print(millis());
+  } else if (led && (millis() - time) > 20) {
     digitalWrite(LED, LOW);
+    //Serial.print(", LOW: ");
+    //Serial.println(millis());
+    led = false;
   }
 }

@@ -8,7 +8,7 @@
 
 #define Kp 0.5
 #define SPEED 0.7
-#define V 150
+#define V 100
 
 #define THR 200
 // 臨界值
@@ -29,22 +29,26 @@ void get_value(int *x, int *y) {
 }
 
 void motor(int r, int l, byte m[4]) {
+  Serial.print(l);
+  Serial.print(", ");
+  Serial.print(r);
+  Serial.print(" | ");
   if (l > 0) {
-    m[0] = V;
+    m[0] = l;
     m[1] = 0;
   } else if (l < 0) {
     m[0] = 0;
-    m[1] = V;
+    m[1] = abs(l);
   } else {
     m[0] = 0;
     m[1] = 0;
   }
   if (r > 0) {
-    m[2] = V;
+    m[2] = r;
     m[3] = 0;
   } else if (r < 0) {
     m[2] = 0;
-    m[3] = V;
+    m[3] = abs(r);
   } else {
     m[2] = 0;
     m[3] = 0;
@@ -58,26 +62,26 @@ void easy(int x, int y, int *l, int *r) {
   Serial.print(" | ");
   if (y > THR) {
     // 前
-    *l = 1;
-    *r = 1;
+    *l = 2 * V;
+    *r = 2 * V;
     if (x < -THR) {
-      *l = 0;
+      *l = 1 * V;
     } else if (x > THR) {
-      *r = 0;
+      *r = 1 * V;
     }
   } else if (y < -THR) {
-    *l = -1;
-    *r = -1;
+    *l = -1.5 * V;
+    *r = -1.5 * V;
     if (x < -THR) {
-      *l = 0;
+      *l = -0.8 * V;
     } else if (x > THR) {
-      *r = 0;
+      *r = -0.8 * V;
     }
   } else {
     if (x < -THR) {
-      *l = -1;
+      *l = -0.8 * V;
     } else if (x > THR) {
-      *l = 1;
+      *l = 0.8 * V;
     } else {
       *l = 0;
     }
@@ -93,10 +97,6 @@ void loop() {
   easy(x, y, &l, &r);
   byte m[4] = {0, 0, 0, 0};
   motor(l, r, m);
-  Serial.print(l);
-  Serial.print(", ");
-  Serial.print(r);
-  Serial.print(" | ");
   for (int i = 0; i < 4; i++) {
     Serial.print(m[i]);
     Serial.print(", ");
